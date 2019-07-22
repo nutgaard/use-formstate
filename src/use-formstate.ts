@@ -12,6 +12,7 @@ import {
 } from './domain';
 import { useImmer } from 'use-immer';
 import { useCallback, useMemo, useState } from 'react';
+
 export * from './domain';
 
 export default function useFormstate<S extends { [key: string]: any }>(validation: Validation<S>) {
@@ -102,6 +103,13 @@ export default function useFormstate<S extends { [key: string]: any }>(validatio
       };
     };
 
-    return createFormstate();
+    return useMemo(() => createFormstate(), [
+      submitting,
+      setSubmitting,
+      state,
+      updateState,
+      beenValidSinceSubmit,
+      setBeenValidSinceSubmit
+    ]);
   };
 }
