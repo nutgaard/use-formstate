@@ -1,6 +1,6 @@
 {
   "name": "@nutgaard/use-formstate",
-  "version": "0.0.0-beta.1",
+  "version": "0.0.0-development",
   "description": "",
   "keywords": [],
   "main": "dist/use-formstate.umd.js",
@@ -19,7 +19,7 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">=6.0.0"
+    "node": ">=8.0.0"
   },
   "scripts": {
     "lint": "tslint  --project tsconfig.json -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
@@ -118,7 +118,7 @@
     "rollup-plugin-node-resolve": "^3.4.0",
     "rollup-plugin-sourcemaps": "^0.4.2",
     "rollup-plugin-typescript2": "^0.18.0",
-    "semantic-release": "^15.9.16",
+    "semantic-release": "^15.13.18",
     "shelljs": "^0.8.3",
     "travis-deploy-once": "^5.0.9",
     "ts-jest": "^23.10.2",
