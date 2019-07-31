@@ -11,15 +11,29 @@ import {
   Values
 } from './domain';
 import { useImmer } from 'use-immer';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 export * from './domain';
+
+function useIsMounted() {
+  const isMounted = useRef(false);
+
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, [isMounted]);
+
+  return isMounted;
+}
 
 export function useFormstateInternal<S extends { [key: string]: any }>(
   keys: Array<Keyof<S>>,
   validation: Validation<S>,
   initialValues: InitialValues<S>
 ): Formstate<S> {
+  const isMounted = useIsMounted();
   const [submitting, setSubmitting] = useState(false);
   const [state, updateState] = useImmer(createInitialState(keys, validation, initialValues));
   const [submittoken, setSubmittoken] = useState(true);
@@ -102,7 +116,12 @@ export function useFormstateInternal<S extends { [key: string]: any }>(
       });
       if (errorsArray.length === 0) {
         setSubmitting(true);
-        fn(values).then(() => setSubmitting(false), () => setSubmitting(false));
+        const submitDoneHandler = () => {
+          if (isMounted.current) {
+            setSubmitting(false);
+          }
+        };
+        fn(values).then(submitDoneHandler, submitDoneHandler);
       } else {
         setSubmittoken(false);
       }

@@ -114,4 +114,23 @@ describe('use-formstate', () => {
     expect(hookResult.result.current.valid).toBe(true);
     expect(submitter).toBeCalledTimes(1);
   });
+
+  it('onSubmit should not update state if component is unmounted', () => {
+    const submitter = jest.fn(() => Promise.resolve());
+    const hookResult = renderHook(() => hook(initialValues));
+    const state = hookResult.result.current;
+
+    act(() => state.fields.test2.input.onChange(changeEvent('test2', 'ok')));
+
+    expect(hookResult.result.current.fields.test2.input.value).toBe('ok');
+    expect(hookResult.result.current.fields.test2.error).toBeUndefined();
+
+    act(() => hookResult.result.current.onSubmit(submitter)(submitEvent()));
+    hookResult.unmount();
+
+    expect(hookResult.result.current.errors).toEqual({});
+    expect(hookResult.result.current.submitting).toBe(true);
+    expect(hookResult.result.current.valid).toBe(true);
+    expect(submitter).toBeCalledTimes(1);
+  });
 });
