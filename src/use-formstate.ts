@@ -34,9 +34,9 @@ export function useFormstateInternal<S extends { [key: string]: any }>(
       const name = event.target.name;
       const value = event.target.value;
       updateState(draft => {
-        const oldValue = draft.fields[name].value;
+        const initialValue = draft.fields[name].initialValue;
 
-        draft.fields[name].pristine = oldValue === value;
+        draft.fields[name].pristine = initialValue === value;
         draft.fields[name].value = value;
         const formHasError = Object.keys(draft.fields)
           .map(key => {
