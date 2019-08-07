@@ -12,12 +12,13 @@ import {
 } from './domain';
 import { useImmer } from 'use-immer';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { InternalState } from './internal-domain';
+import { Draft } from 'immer';
 
 export * from './domain';
 
 function useIsMounted() {
   const isMounted = useRef(false);
-
   useEffect(() => {
     isMounted.current = true;
     return () => {
@@ -26,6 +27,12 @@ function useIsMounted() {
   }, [isMounted]);
 
   return isMounted;
+}
+
+function getValues<S extends { [key: string]: any }>(
+  state: Draft<InternalState<S>> | InternalState<S>
+): Values<S> {
+  return fromEntries(Object.entries(state.fields).map(([key, field]) => [key, field.value]));
 }
 
 export function useFormstateInternal<S extends { [key: string]: any }>(
@@ -38,11 +45,6 @@ export function useFormstateInternal<S extends { [key: string]: any }>(
   const [state, updateState] = useImmer(createInitialState(keys, validation, initialValues));
   const [submittoken, setSubmittoken] = useState(true);
 
-  const values: Values<S> = useMemo(
-    () => fromEntries(Object.entries(state.fields).map(([key, field]) => [key, field.value])),
-    [state.fields]
-  );
-
   const onChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const name = event.target.name;
@@ -52,6 +54,7 @@ export function useFormstateInternal<S extends { [key: string]: any }>(
 
         draft.fields[name].pristine = initialValue === value;
         draft.fields[name].value = value;
+        const values = getValues(draft);
         const formHasError = Object.keys(draft.fields)
           .map(key => {
             const error = validation[key](draft.fields[key].value, values);
@@ -65,7 +68,7 @@ export function useFormstateInternal<S extends { [key: string]: any }>(
         }
       });
     },
-    [updateState, validation, values]
+    [updateState, validation]
   );
 
   const onBlur = useCallback(
@@ -113,20 +116,21 @@ export function useFormstateInternal<S extends { [key: string]: any }>(
       event.preventDefault();
       updateState(draft => {
         Object.keys(draft.fields).forEach(field => (draft.fields[field].touched = true));
+
+        if (errorsArray.length === 0) {
+          setSubmitting(true);
+          const submitDoneHandler = () => {
+            if (isMounted.current) {
+              setSubmitting(false);
+            }
+          };
+          fn(getValues(draft)).then(submitDoneHandler, submitDoneHandler);
+        } else {
+          setSubmittoken(false);
+        }
       });
-      if (errorsArray.length === 0) {
-        setSubmitting(true);
-        const submitDoneHandler = () => {
-          if (isMounted.current) {
-            setSubmitting(false);
-          }
-        };
-        fn(values).then(submitDoneHandler, submitDoneHandler);
-      } else {
-        setSubmittoken(false);
-      }
     },
-    [errorsArray, setSubmitting, values, updateState]
+    [errorsArray, setSubmitting, updateState]
   );
 
   return useMemo(
