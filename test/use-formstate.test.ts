@@ -62,6 +62,35 @@ describe('use-formstate', () => {
     });
   });
 
+  it('onChange should update value used by validation', done => {
+    const spy = jest.fn();
+    const hook = useFormstate<TestShape>({
+      test1: spy,
+      test2: jest.fn(),
+      test3: jest.fn()
+    });
+    const hookResult = renderHook(() => hook(initialValues));
+    const state = hookResult.result.current;
+
+    act(() => {
+      state.fields.test3.input.onChange(changeEvent('test3', '123456'));
+      state.fields.test3.input.onChange(changeEvent('test2', '123456'));
+      hookResult.waitForNextUpdate().then(() => {
+        expect(hookResult.result.current.fields.test3.initialValue).toBe('value');
+        expect(hookResult.result.current.fields.test3.input.value).toBe('123456');
+        expect(hookResult.result.current.fields.test2.input.value).toBe('123456');
+        expect(hookResult.result.current.fields.test3.pristine).toBe(false);
+        expect(hookResult.result.current.fields.test3.touched).toBe(false);
+
+        expect(spy).toHaveBeenCalledTimes(3);
+        expect(spy).toHaveBeenNthCalledWith(1, '', initialValues);
+        expect(spy).toHaveBeenNthCalledWith(2, '', { test1: '', test2: '', test3: '123456' });
+        expect(spy).toHaveBeenNthCalledWith(3, '', { test1: '', test2: '123456', test3: '123456' });
+        done();
+      });
+    });
+  });
+
   it('onBlur should update pristine', done => {
     const hookResult = renderHook(() => hook(initialValues));
     const state = hookResult.result.current;
