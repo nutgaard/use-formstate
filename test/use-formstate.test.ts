@@ -142,6 +142,7 @@ describe('use-formstate', () => {
     expect(hookResult.result.current.submitting).toBe(true);
     expect(hookResult.result.current.valid).toBe(true);
     expect(submitter).toBeCalledTimes(1);
+    expect(submitter).toHaveBeenCalledWith({ test1: '', test2: 'ok', test3: 'value' });
   });
 
   it('onSubmit should not update state if component is unmounted', () => {

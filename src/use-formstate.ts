@@ -108,6 +108,7 @@ export function useFormstateInternal<S extends { [key: string]: any }>(
     [fieldsArray]
   );
 
+  const values = getValues(state);
   const pristine = fieldsArray.every(([key, field]) => field.pristine);
   const errors: Errors<S> = useMemo(() => fromEntries(errorsArray), [errorsArray]);
   const fields: Mapped<S, FieldState> = useMemo(() => fromEntries(fieldsArray), [fieldsArray]);
@@ -116,21 +117,21 @@ export function useFormstateInternal<S extends { [key: string]: any }>(
       event.preventDefault();
       updateState(draft => {
         Object.keys(draft.fields).forEach(field => (draft.fields[field].touched = true));
-
-        if (errorsArray.length === 0) {
-          setSubmitting(true);
-          const submitDoneHandler = () => {
-            if (isMounted.current) {
-              setSubmitting(false);
-            }
-          };
-          fn(getValues(draft)).then(submitDoneHandler, submitDoneHandler);
-        } else {
-          setSubmittoken(false);
-        }
       });
+
+      if (errorsArray.length === 0) {
+        setSubmitting(true);
+        const submitDoneHandler = () => {
+          if (isMounted.current) {
+            setSubmitting(false);
+          }
+        };
+        fn(values).then(submitDoneHandler, submitDoneHandler);
+      } else {
+        setSubmittoken(false);
+      }
     },
-    [errorsArray, setSubmitting, updateState]
+    [errorsArray, setSubmitting, updateState, values]
   );
 
   return useMemo(
