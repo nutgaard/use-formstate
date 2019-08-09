@@ -35,6 +35,10 @@ function getValues<S extends { [key: string]: any }>(
   return fromEntries(Object.entries(state.fields).map(([key, field]) => [key, field.value]));
 }
 
+function uid() {
+  return 'xxxxxx-xxxxxx-xxxxxx-xxxxxx'.replace(/x/g, () => ((Math.random() * 16) | 0).toString(16));
+}
+
 export function useFormstateInternal<S extends { [key: string]: any }>(
   keys: Array<Keyof<S>>,
   validation: Validation<S>,
@@ -43,7 +47,7 @@ export function useFormstateInternal<S extends { [key: string]: any }>(
   const isMounted = useIsMounted();
   const [submitting, setSubmitting] = useState(false);
   const [state, updateState] = useImmer(createInitialState(keys, validation, initialValues));
-  const [submittoken, setSubmittoken] = useState(true);
+  const [submittoken, setSubmittoken] = useState<string | undefined>(undefined);
 
   const onChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,7 +68,7 @@ export function useFormstateInternal<S extends { [key: string]: any }>(
           .some(error => error);
 
         if (!formHasError) {
-          setSubmittoken(true);
+          setSubmittoken(undefined);
         }
       });
     },
@@ -128,7 +132,7 @@ export function useFormstateInternal<S extends { [key: string]: any }>(
         };
         fn(values).then(submitDoneHandler, submitDoneHandler);
       } else {
-        setSubmittoken(false);
+        setSubmittoken(uid());
       }
     },
     [errorsArray, setSubmitting, updateState, values]

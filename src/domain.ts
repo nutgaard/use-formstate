@@ -26,7 +26,7 @@ export type Formstate<T> = {
   submitting: boolean;
   pristine: boolean;
   valid: boolean;
-  submittoken: boolean;
+  submittoken?: string;
   errors: Errors<T>;
   fields: Mapped<T, FieldState>;
   onSubmit(fn: SubmitHandler<T>): React.FormEventHandler;

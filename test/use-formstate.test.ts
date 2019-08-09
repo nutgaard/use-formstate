@@ -38,7 +38,7 @@ describe('use-formstate', () => {
     expect(Object.keys(state.fields)).toEqual(Object.keys(validation));
     expect(state.valid).toBe(false);
     expect(state.pristine).toBe(true);
-    expect(state.submittoken).toBe(true);
+    expect(state.submittoken).toBeUndefined();
     expect(state.submitting).toBe(false);
     expect(state.errors).toEqual({ test2: 'Error' });
     expect(state.onSubmit).not.toBeUndefined();
@@ -118,7 +118,7 @@ describe('use-formstate', () => {
       expect(Object.keys(state.errors)).toHaveLength(1);
       state.onSubmit(submitter)(submitEvent());
       hookResult.waitForNextUpdate().then(() => {
-        expect(hookResult.result.current.submittoken).toBe(false);
+        expect(hookResult.result.current.submittoken).not.toBeUndefined();
         expect(hookResult.result.current.valid).toBe(false);
         expect(submitter).toBeCalledTimes(0);
         done();
@@ -141,6 +141,7 @@ describe('use-formstate', () => {
     expect(hookResult.result.current.errors).toEqual({});
     expect(hookResult.result.current.submitting).toBe(true);
     expect(hookResult.result.current.valid).toBe(true);
+    expect(hookResult.result.current.submittoken).toBeUndefined();
     expect(submitter).toBeCalledTimes(1);
     expect(submitter).toHaveBeenCalledWith({ test1: '', test2: 'ok', test3: 'value' });
   });
