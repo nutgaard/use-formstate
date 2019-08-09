@@ -138,6 +138,21 @@ export function useFormstateInternal<S extends { [key: string]: any }>(
     [errorsArray, setSubmitting, updateState, values]
   );
 
+  const reinitialize = useCallback(
+    (newInitialValues: InitialValues<S>) => {
+      updateState(draft => {
+        Object.entries(draft.fields).forEach(([name, field]) => {
+          field.initialValue = newInitialValues[name];
+          field.value = newInitialValues[name];
+          field.pristine = true;
+          field.error = undefined;
+          field.touched = false;
+        });
+      });
+    },
+    [updateState]
+  );
+
   return useMemo(
     () => ({
       submitting,
@@ -146,9 +161,10 @@ export function useFormstateInternal<S extends { [key: string]: any }>(
       submittoken,
       errors,
       fields,
-      onSubmit
+      onSubmit,
+      reinitialize
     }),
-    [submitting, errorsArray, pristine, submittoken, errors, fields, onSubmit]
+    [submitting, errorsArray, pristine, submittoken, errors, fields, onSubmit, reinitialize]
   );
 }
 

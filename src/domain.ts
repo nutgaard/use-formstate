@@ -30,4 +30,5 @@ export type Formstate<T> = {
   errors: Errors<T>;
   fields: Mapped<T, FieldState>;
   onSubmit(fn: SubmitHandler<T>): React.FormEventHandler;
+  reinitialize(initialValues: InitialValues<T>): void;
 };
