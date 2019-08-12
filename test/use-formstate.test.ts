@@ -164,4 +164,34 @@ describe('use-formstate', () => {
     expect(hookResult.result.current.valid).toBe(true);
     expect(submitter).toBeCalledTimes(1);
   });
+
+  it('should be able to reinitialize', done => {
+    const hookResult = renderHook(() => hook(initialValues));
+
+    act(() => {
+      hookResult.result.current.fields.test1.input.onChange(changeEvent('test1', 'ok'));
+      hookResult.result.current.fields.test1.input.onBlur(focusEvent('test1'));
+
+      hookResult.result.current.reinitialize({
+        test1: 'new 1',
+        test2: 'new 2',
+        test3: 'new 3'
+      });
+
+      hookResult.waitForNextUpdate().then(() => {
+        expect(hookResult.result.current.fields.test1.input.value).toBe('new 1');
+        expect(hookResult.result.current.fields.test1.initialValue).toBe('new 1');
+        expect(hookResult.result.current.fields.test2.input.value).toBe('new 2');
+        expect(hookResult.result.current.fields.test2.initialValue).toBe('new 2');
+        expect(hookResult.result.current.fields.test3.input.value).toBe('new 3');
+        expect(hookResult.result.current.fields.test3.initialValue).toBe('new 3');
+
+        expect(hookResult.result.current.fields.test1.touched).toBe(false);
+        expect(hookResult.result.current.fields.test1.pristine).toBe(true);
+        expect(hookResult.result.current.fields.test1.error).toBeUndefined();
+
+        done();
+      });
+    });
+  });
 });
