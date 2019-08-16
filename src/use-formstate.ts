@@ -145,7 +145,7 @@ export function useFormstateInternal<S extends { [key: string]: any }>(
           field.initialValue = newInitialValues[name];
           field.value = newInitialValues[name];
           field.pristine = true;
-          field.error = undefined;
+          field.error = validation[name](newInitialValues[name], newInitialValues);
           field.touched = false;
         });
       });

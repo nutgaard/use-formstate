@@ -190,6 +190,8 @@ describe('use-formstate', () => {
         expect(hookResult.result.current.fields.test1.pristine).toBe(true);
         expect(hookResult.result.current.fields.test1.error).toBeUndefined();
 
+        expect(hookResult.result.current.fields.test2.error).toBe('Error');
+
         done();
       });
     });
