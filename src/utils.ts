@@ -11,10 +11,11 @@ export function fromEntries<SHAPE, DATA>(data: Array<[Keyof<SHAPE>, DATA]>): Map
   );
 }
 
-export function createInitialState<S>(
+export function createInitialState<S, P>(
   keys: Array<Keyof<S>>,
-  validation: Validation<S>,
-  initialValues: InitialValues<S>
+  validation: Validation<S, P>,
+  initialValues: InitialValues<S>,
+  props: P
 ): () => InternalState<S> {
   return () => {
     const fields: Mapped<S, InternalFieldState> = fromEntries(
@@ -23,7 +24,7 @@ export function createInitialState<S>(
           pristine: true,
           touched: false,
           initialValue: initialValues[key],
-          error: validation[key](initialValues[key], initialValues),
+          error: validation[key](initialValues[key], initialValues, props),
           value: initialValues[key]
         };
 

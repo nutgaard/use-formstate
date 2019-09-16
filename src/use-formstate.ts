@@ -39,14 +39,18 @@ function uid() {
   return 'xxxxxx-xxxxxx-xxxxxx-xxxxxx'.replace(/x/g, () => ((Math.random() * 16) | 0).toString(16));
 }
 
-export function useFormstateInternal<S extends { [key: string]: any }>(
+export function useFormstateInternal<
+  S extends { [key: string]: any },
+  P extends { [key: string]: any }
+>(
   keys: Array<Keyof<S>>,
-  validation: Validation<S>,
-  initialValues: InitialValues<S>
+  validation: Validation<S, P>,
+  initialValues: InitialValues<S>,
+  props: P
 ): Formstate<S> {
   const isMounted = useIsMounted();
   const [submitting, setSubmitting] = useState(false);
-  const [state, updateState] = useImmer(createInitialState(keys, validation, initialValues));
+  const [state, updateState] = useImmer(createInitialState(keys, validation, initialValues, props));
   const [submittoken, setSubmittoken] = useState<string | undefined>(undefined);
 
   const onChange = useCallback(
@@ -61,7 +65,7 @@ export function useFormstateInternal<S extends { [key: string]: any }>(
         const values = getValues(draft);
         const formHasError = Object.keys(draft.fields)
           .map(key => {
-            const error = validation[key](draft.fields[key].value, values);
+            const error = validation[key](draft.fields[key].value, values, props);
             draft.fields[key].error = error;
             return !!error;
           })
@@ -145,7 +149,7 @@ export function useFormstateInternal<S extends { [key: string]: any }>(
           field.initialValue = newInitialValues[name];
           field.value = newInitialValues[name];
           field.pristine = true;
-          field.error = validation[name](newInitialValues[name], newInitialValues);
+          field.error = validation[name](newInitialValues[name], newInitialValues, props);
           field.touched = false;
         });
       });
@@ -168,9 +172,12 @@ export function useFormstateInternal<S extends { [key: string]: any }>(
   );
 }
 
-export default function useFormstate<S extends { [key: string]: any }>(validation: Validation<S>) {
+export default function useFormstate<
+  S extends { [key: string]: any },
+  P extends { [key: string]: any } = {}
+>(validation: Validation<S, P>) {
   const keys: Array<Keyof<S>> = Object.keys(validation) as Array<Keyof<S>>;
   // eslint-disable-next-line
-  return (initialValues: InitialValues<S>): Formstate<S> =>
-    useFormstateInternal(keys, validation, initialValues);
+  return (initialValues: InitialValues<S>, props?: P): Formstate<S> =>
+    useFormstateInternal(keys, validation, initialValues, props || ({} as P));
 }
