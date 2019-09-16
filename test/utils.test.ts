@@ -28,7 +28,8 @@ describe('utils', () => {
       const state: InternalState<TestShape> = createInitialState<TestShape>(
         keys,
         validation,
-        initialValues
+        initialValues,
+        {}
       )();
 
       expect(Object.keys(state.fields)).toEqual(keys);

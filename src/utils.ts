@@ -11,7 +11,7 @@ export function fromEntries<SHAPE, DATA>(data: Array<[Keyof<SHAPE>, DATA]>): Map
   );
 }
 
-export function createInitialState<S, P>(
+export function createInitialState<S, P = {}>(
   keys: Array<Keyof<S>>,
   validation: Validation<S, P>,
   initialValues: InitialValues<S>,
