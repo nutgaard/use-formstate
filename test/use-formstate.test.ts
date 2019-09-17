@@ -82,11 +82,12 @@ describe('use-formstate', () => {
         expect(hookResult.result.current.fields.test3.pristine).toBe(false);
         expect(hookResult.result.current.fields.test3.touched).toBe(false);
 
-        expect(spy).toHaveBeenCalledTimes(3);
+        expect(spy).toHaveBeenCalledTimes(4);
         expect(spy).toHaveBeenNthCalledWith(1, '', initialValues, {});
-        expect(spy).toHaveBeenNthCalledWith(2, '', { test1: '', test2: '', test3: '123456' }, {});
+        expect(spy).toHaveBeenNthCalledWith(2, '', initialValues, {});
+        expect(spy).toHaveBeenNthCalledWith(3, '', { test1: '', test2: '', test3: '123456' }, {});
         expect(spy).toHaveBeenNthCalledWith(
-          3,
+          4,
           '',
           { test1: '', test2: '123456', test3: '123456' },
           {}

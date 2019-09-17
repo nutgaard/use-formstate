@@ -157,6 +157,15 @@ export function useFormstateInternal<
     [updateState, props]
   );
 
+  useEffect(() => {
+    updateState(draft => {
+      const values = getValues(draft);
+      Object.entries(draft.fields).forEach(([name, field]) => {
+        field.error = validation[name](field.initialValue, values, props);
+      });
+    });
+  }, [updateState, props]);
+
   return useMemo(
     () => ({
       submitting,
@@ -172,6 +181,7 @@ export function useFormstateInternal<
   );
 }
 
+const defaultPropsValue = {};
 export default function useFormstate<
   S extends { [key: string]: any },
   P extends { [key: string]: any } = {}
@@ -179,5 +189,5 @@ export default function useFormstate<
   const keys: Array<Keyof<S>> = Object.keys(validation) as Array<Keyof<S>>;
   // eslint-disable-next-line
   return (initialValues: InitialValues<S>, props?: P): Formstate<S> =>
-    useFormstateInternal(keys, validation, initialValues, props || ({} as P));
+    useFormstateInternal(keys, validation, initialValues, props || (defaultPropsValue as P));
 }
