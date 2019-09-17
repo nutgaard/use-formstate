@@ -1,6 +1,6 @@
 {
   "name": "@nutgaard/use-formstate",
-  "version": "2.2.0-beta.1",
+  "version": "2.2.0-beta.2",
   "description": "",
   "keywords": [],
   "main": "dist/use-formstate.umd.js",
