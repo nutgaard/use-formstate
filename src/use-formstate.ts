@@ -161,7 +161,7 @@ export function useFormstateInternal<
     updateState(draft => {
       const values = getValues(draft);
       Object.entries(draft.fields).forEach(([name, field]) => {
-        field.error = validation[name](field.initialValue, values, props);
+        field.error = validation[name](field.value, values, props);
       });
     });
   }, [updateState, props]);
