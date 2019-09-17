@@ -76,7 +76,7 @@ export function useFormstateInternal<
         }
       });
     },
-    [updateState, validation]
+    [updateState, validation, props]
   );
 
   const onBlur = useCallback(
@@ -154,7 +154,7 @@ export function useFormstateInternal<
         });
       });
     },
-    [updateState]
+    [updateState, props]
   );
 
   return useMemo(
