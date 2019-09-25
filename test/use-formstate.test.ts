@@ -82,10 +82,16 @@ describe('use-formstate', () => {
         expect(hookResult.result.current.fields.test3.pristine).toBe(false);
         expect(hookResult.result.current.fields.test3.touched).toBe(false);
 
-        expect(spy).toHaveBeenCalledTimes(3);
-        expect(spy).toHaveBeenNthCalledWith(1, '', initialValues);
-        expect(spy).toHaveBeenNthCalledWith(2, '', { test1: '', test2: '', test3: '123456' });
-        expect(spy).toHaveBeenNthCalledWith(3, '', { test1: '', test2: '123456', test3: '123456' });
+        expect(spy).toHaveBeenCalledTimes(4);
+        expect(spy).toHaveBeenNthCalledWith(1, '', initialValues, {});
+        expect(spy).toHaveBeenNthCalledWith(2, '', initialValues, {});
+        expect(spy).toHaveBeenNthCalledWith(3, '', { test1: '', test2: '', test3: '123456' }, {});
+        expect(spy).toHaveBeenNthCalledWith(
+          4,
+          '',
+          { test1: '', test2: '123456', test3: '123456' },
+          {}
+        );
         done();
       });
     });
@@ -195,5 +201,18 @@ describe('use-formstate', () => {
         done();
       });
     });
+  });
+
+  it('should pass props to validator functions', () => {
+    const spy = jest.fn();
+    const hook = useFormstate<TestShape>({
+      test1: spy,
+      test2: jest.fn(),
+      test3: jest.fn()
+    });
+    const props = { mindata: 123 };
+    renderHook(() => hook(initialValues, props));
+
+    expect(spy).toHaveBeenCalledWith('', initialValues, props);
   });
 });
