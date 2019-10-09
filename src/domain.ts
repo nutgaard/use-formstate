@@ -21,7 +21,7 @@ export type FieldState = {
   error?: string;
   input: {
     id: string;
-
+    name: string;
     value: string;
     onChange: React.ChangeEventHandler;
     onBlur: React.FocusEventHandler;
