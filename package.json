@@ -1,7 +1,7 @@
 {
   "name": "@nutgaard/use-formstate",
   "version": "0.0.0-development",
-  "description": "",
+  "description": "A react-hook for managing form values, errors and more",
   "keywords": [],
   "main": "dist/use-formstate.umd.js",
   "module": "dist/use-formstate.es5.js",
