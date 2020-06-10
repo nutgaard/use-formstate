@@ -30,7 +30,7 @@ function useIsMounted() {
   return isMounted;
 }
 
-function getValues<S extends { [key: string]: any }>(
+function getValues<S extends { [key: string]: string }>(
   state: Draft<InternalState<S>> | InternalState<S>
 ): Values<S> {
   return fromEntries(Object.entries(state.fields).map(([key, field]) => [key, field.value]));
@@ -41,7 +41,7 @@ function uid() {
 }
 
 export function useFormstateInternal<
-  S extends { [key: string]: any },
+  S extends { [key: string]: string },
   P extends { [key: string]: any }
 >(
   keys: Array<Keyof<S>>,
@@ -185,7 +185,7 @@ export function useFormstateInternal<
 
 const defaultPropsValue = {};
 export default function useFormstate<
-  S extends { [key: string]: any },
+  S extends { [key: string]: string },
   P extends { [key: string]: any } = {}
 >(validation: Validation<S, P>) {
   const keys: Array<Keyof<S>> = Object.keys(validation) as Array<Keyof<S>>;

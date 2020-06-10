@@ -92,6 +92,8 @@ function MyForm(props: Props) {
 Most notable types are `Formstate<S>` and `FieldState`:
 
 **Formstate**
+
+The returntype of calling `useFormstate(validation)(initialValues, props);`
 ```
 submitting: boolean;                // is the submithandler current running
 pristine: boolean;                  // is 'values === initialValues'
@@ -101,6 +103,8 @@ fields: { fieldnames: FieldState }
 ```
 
 **FieldState**
+
+The type containing information for each field.
 ```
 pristine: boolean;                  // is 'values === initialValues'
 touched: boolean;                   // has this element had focus

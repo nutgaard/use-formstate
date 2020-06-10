@@ -38,7 +38,7 @@ export function createInitialState<S, P = {}>(
 }
 
 export function mapToValidationFunction<
-  S extends { [key: string]: any },
+  S extends { [key: string]: string },
   P extends { [key: string]: any } = {}
 >(keys: Array<Keyof<S>>, validation: Validation<S, P>): FunctionValidator<S, P> {
   if (typeof validation === 'function') {
