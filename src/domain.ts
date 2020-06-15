@@ -8,7 +8,12 @@ export type Validator<T, P = {}> = (
   values: Values<T>,
   props: P
 ) => string | undefined;
-export type Validation<S, P = {}> = Mapped<S, Validator<S, P>>;
+export type FunctionValidator<S, P = {}> = (
+  values: Values<S>,
+  props: P
+) => Mapped<S, string | undefined>;
+export type ObjectValidator<S, P = {}> = Mapped<S, Validator<S, P>>;
+export type Validation<S, P = {}> = ObjectValidator<S, P> | FunctionValidator<S, P>;
 export type Values<S> = Mapped<S, string>;
 export type InitialValues<S> = Mapped<S, string>;
 export type Errors<S> = Mapped<S, string>;

@@ -1,8 +1,9 @@
-import { createInitialState, fromEntries } from './utils';
+import { createInitialState, fromEntries, mapToValidationFunction } from './utils';
 import {
   Errors,
   FieldState,
   Formstate,
+  FunctionValidator,
   InitialValues,
   Keyof,
   Mapped,
@@ -29,7 +30,7 @@ function useIsMounted() {
   return isMounted;
 }
 
-function getValues<S extends { [key: string]: any }>(
+function getValues<S extends { [key: string]: string }>(
   state: Draft<InternalState<S>> | InternalState<S>
 ): Values<S> {
   return fromEntries(Object.entries(state.fields).map(([key, field]) => [key, field.value]));
@@ -40,11 +41,11 @@ function uid() {
 }
 
 export function useFormstateInternal<
-  S extends { [key: string]: any },
+  S extends { [key: string]: string },
   P extends { [key: string]: any }
 >(
   keys: Array<Keyof<S>>,
-  validation: Validation<S, P>,
+  validation: FunctionValidator<S, P>,
   initialValues: InitialValues<S>,
   props: P
 ): Formstate<S> {
@@ -63,13 +64,12 @@ export function useFormstateInternal<
         draft.fields[name].pristine = initialValue === value;
         draft.fields[name].value = value;
         const values = getValues(draft);
-        const formHasError = Object.keys(draft.fields)
-          .map(key => {
-            const error = validation[key](draft.fields[key].value, values, props);
-            draft.fields[key].error = error;
-            return !!error;
-          })
-          .some(error => error);
+        const errors = validation(values, props);
+        const formHasError = Object.keys(draft.fields).some(error => error);
+
+        Object.keys(draft.fields).forEach(key => {
+          draft.fields[key].error = errors[key];
+        });
 
         if (!formHasError) {
           setSubmittoken(undefined);
@@ -144,12 +144,13 @@ export function useFormstateInternal<
 
   const reinitialize = useCallback(
     (newInitialValues: InitialValues<S>) => {
+      const errors = validation(newInitialValues, props);
       updateState(draft => {
         Object.entries(draft.fields).forEach(([name, field]) => {
           field.initialValue = newInitialValues[name];
           field.value = newInitialValues[name];
           field.pristine = true;
-          field.error = validation[name](newInitialValues[name], newInitialValues, props);
+          field.error = errors[name];
           field.touched = false;
         });
       });
@@ -160,8 +161,9 @@ export function useFormstateInternal<
   useEffect(() => {
     updateState(draft => {
       const values = getValues(draft);
+      const errors = validation(values, props);
       Object.entries(draft.fields).forEach(([name, field]) => {
-        field.error = validation[name](field.value, values, props);
+        field.error = errors[name];
       });
     });
   }, [updateState, props]);
@@ -183,11 +185,17 @@ export function useFormstateInternal<
 
 const defaultPropsValue = {};
 export default function useFormstate<
-  S extends { [key: string]: any },
+  S extends { [key: string]: string },
   P extends { [key: string]: any } = {}
 >(validation: Validation<S, P>) {
   const keys: Array<Keyof<S>> = Object.keys(validation) as Array<Keyof<S>>;
+  const internalValidation = mapToValidationFunction(keys, validation);
   // eslint-disable-next-line
   return (initialValues: InitialValues<S>, props?: P): Formstate<S> =>
-    useFormstateInternal(keys, validation, initialValues, props || (defaultPropsValue as P));
+    useFormstateInternal(
+      keys,
+      internalValidation,
+      initialValues,
+      props || (defaultPropsValue as P)
+    );
 }
