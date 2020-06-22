@@ -13,7 +13,7 @@ The form-shape and how it should be validated is defined using the `useFormstate
 Optimally this should be outside of your react-component.
 
 ```typescript jsx
-interface FormData {
+type FormData = { // Don't use an interface here. Read me under "known issues"
   name: string;
   city: string;
   hobby: string;
@@ -118,6 +118,24 @@ input: {
   onBlur: FocusEventHandler;
 };                      
 ```
+
+# Known issues
+### `interface` vs `type`
+Its recommended to use `type` insteadof `interface` when defining your form-shape.
+E.g
+```typescript
+// DON'T DO THIS
+interface FormShape {
+  name: string;
+}
+
+// DO THIS
+type FormShape = {
+  name: string;
+}
+```
+The underlying issue can be better understood by read through this official issue; https://github.com/microsoft/TypeScript/issues/15300
+ 
 
 ## Credits
 
