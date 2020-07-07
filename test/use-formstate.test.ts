@@ -3,6 +3,7 @@ import useFormstate, { Validation } from '../src/use-formstate';
 import { ChangeEvent, FocusEvent, FormEvent } from 'react';
 
 type TestShape = { test1: string; test2: string; test3: string };
+type PropsShape = { minedata: number };
 const validation: Validation<TestShape> = {
   test1: () => undefined,
   test2: value => (value === 'ok' ? undefined : 'Error'),
@@ -215,12 +216,12 @@ describe('use-formstate', () => {
 
   it('should pass props to validator functions', () => {
     const spy = jest.fn();
-    const hook = useFormstate<TestShape>({
+    const hook = useFormstate<TestShape, PropsShape>({
       test1: spy,
       test2: jest.fn(),
       test3: jest.fn()
     });
-    const props = { mindata: 123 };
+    const props = { minedata: 123 };
     renderHook(() => hook(initialValues, props));
 
     expect(spy).toHaveBeenCalledWith('', initialValues, props);

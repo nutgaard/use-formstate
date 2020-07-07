@@ -187,9 +187,18 @@ const defaultPropsValue = {};
 export default function useFormstate<
   S extends { [key: string]: string },
   P extends { [key: string]: any } = {}
+>(
+  validation: Validation<S, P>
+): {} extends P
+  ? (initialValues: Mapped<S, string>) => Formstate<S>
+  : (initialValues: Mapped<S, string>, props: P) => Formstate<S>;
+
+export default function useFormstate<
+  S extends { [key: string]: string },
+  P extends { [key: string]: any } = {}
 >(validation: Validation<S, P>) {
   if (typeof validation === 'function') {
-    return (initialValues: InitialValues<S>, props?: P): Formstate<S> => {
+    return (initialValues: InitialValues<S>, props: P): Formstate<S> => {
       const keys: Array<Keyof<S>> = Object.keys(initialValues) as Array<Keyof<S>>;
       return useFormstateInternal(
         keys,
@@ -201,7 +210,7 @@ export default function useFormstate<
   } else {
     const keys: Array<Keyof<S>> = Object.keys(validation) as Array<Keyof<S>>;
     const internalValidation = mapToValidationFunction(keys, validation);
-    return (initialValues: InitialValues<S>, props?: P): Formstate<S> =>
+    return (initialValues: InitialValues<S>, props: P): Formstate<S> =>
       useFormstateInternal(
         keys,
         internalValidation,
