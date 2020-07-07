@@ -188,14 +188,25 @@ export default function useFormstate<
   S extends { [key: string]: string },
   P extends { [key: string]: any } = {}
 >(validation: Validation<S, P>) {
-  const keys: Array<Keyof<S>> = Object.keys(validation) as Array<Keyof<S>>;
-  const internalValidation = mapToValidationFunction(keys, validation);
-  // eslint-disable-next-line
-  return (initialValues: InitialValues<S>, props?: P): Formstate<S> =>
-    useFormstateInternal(
-      keys,
-      internalValidation,
-      initialValues,
-      props || (defaultPropsValue as P)
-    );
+  if (typeof validation === 'function') {
+    return (initialValues: InitialValues<S>, props?: P): Formstate<S> => {
+      const keys: Array<Keyof<S>> = Object.keys(initialValues) as Array<Keyof<S>>;
+      return useFormstateInternal(
+        keys,
+        validation,
+        initialValues,
+        props || (defaultPropsValue as P)
+      );
+    };
+  } else {
+    const keys: Array<Keyof<S>> = Object.keys(validation) as Array<Keyof<S>>;
+    const internalValidation = mapToValidationFunction(keys, validation);
+    return (initialValues: InitialValues<S>, props?: P): Formstate<S> =>
+      useFormstateInternal(
+        keys,
+        internalValidation,
+        initialValues,
+        props || (defaultPropsValue as P)
+      );
+  }
 }

@@ -1,4 +1,4 @@
-import { FunctionValidator, InitialValues, Keyof, Mapped, Validation, Values } from './domain';
+import { FunctionValidator, InitialValues, Keyof, Mapped, ObjectValidator, Values } from './domain';
 import { InternalFieldState, InternalState } from './internal-domain';
 
 export function fromEntries<SHAPE, DATA>(data: Array<[Keyof<SHAPE>, DATA]>): Mapped<SHAPE, DATA> {
@@ -40,18 +40,14 @@ export function createInitialState<S, P = {}>(
 export function mapToValidationFunction<
   S extends { [key: string]: string },
   P extends { [key: string]: any } = {}
->(keys: Array<Keyof<S>>, validation: Validation<S, P>): FunctionValidator<S, P> {
-  if (typeof validation === 'function') {
-    return validation;
-  } else {
-    return (values: Values<S>, props: P) => {
-      return fromEntries(
-        keys.map((key: Keyof<S>) => {
-          const value = values[key];
-          const error = validation[key](value, values, props);
-          return [key, error];
-        })
-      );
-    };
-  }
+>(keys: Array<Keyof<S>>, validation: ObjectValidator<S, P>): FunctionValidator<S, P> {
+  return (values: Values<S>, props: P) => {
+    return fromEntries(
+      keys.map((key: Keyof<S>) => {
+        const value = values[key];
+        const error = validation[key](value, values, props);
+        return [key, error];
+      })
+    );
+  };
 }

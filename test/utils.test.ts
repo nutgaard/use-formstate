@@ -1,5 +1,5 @@
 import { createInitialState, fromEntries, mapToValidationFunction } from '../src/utils';
-import { FunctionValidator, Keyof, Validation, Values } from '../src/domain';
+import { FunctionValidator, Keyof, Validation } from '../src/domain';
 import { InternalState } from '../src/internal-domain';
 
 type TestShape = { test1: string; test2: string; test3: string };
@@ -53,23 +53,6 @@ describe('utils', () => {
       const validator = mapToValidationFunction<TestShape>(keys, validation);
       const result = validator({ test1: '', test2: 'ok', test3: '123456' }, {});
 
-      expect(result.test1).toBeUndefined();
-      expect(result.test2).toBeUndefined();
-      expect(result.test3).toBe('Too long');
-    });
-
-    it('should handle function format', () => {
-      const keys: Array<Keyof<TestShape>> = ['test1', 'test2', 'test3'];
-      const validation: Validation<TestShape> = (values: Values<TestShape>) => {
-        const test1 = undefined;
-        const test2 = undefined;
-        const test3 = values.test3.length > 5 ? 'Too long' : undefined;
-        return { test1, test2, test3 };
-      };
-      const validator = mapToValidationFunction<TestShape>(keys, validation);
-      const result = validator({ test1: '', test2: 'ok', test3: '123456' }, {});
-
-      expect(validator).toBe(validation);
       expect(result.test1).toBeUndefined();
       expect(result.test2).toBeUndefined();
       expect(result.test3).toBe('Too long');

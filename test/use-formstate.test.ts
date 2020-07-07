@@ -44,6 +44,16 @@ describe('use-formstate', () => {
     expect(state.onSubmit).not.toBeUndefined();
   });
 
+  it('should return state object if used with function-validator', () => {
+    const functionHook = useFormstate<TestShape>((values, props) => ({
+      test1: undefined,
+      test2: undefined,
+      test3: undefined
+    }));
+    const state = renderHook(() => functionHook(initialValues)).result.current;
+    expect(Object.keys(state.fields)).toEqual(Object.keys(validation));
+  });
+
   it('onChange should update value and errors', done => {
     const hookResult = renderHook(() => hook(initialValues));
     const state = hookResult.result.current;
