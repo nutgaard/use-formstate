@@ -5,7 +5,7 @@ import { ChangeEvent, FocusEvent, FormEvent } from 'react';
 type TestShape = { test1: string; test2: string; test3: string };
 type PropsShape = { minedata: number };
 const validation: Validation<TestShape> = {
-  test1: () => undefined,
+  test1: value => (value === 'empty-error' ? '' : undefined),
   test2: value => (value === 'ok' ? undefined : 'Error'),
   test3: value => (value.length > 5 ? 'Too long' : undefined)
 };
@@ -43,6 +43,12 @@ describe('use-formstate', () => {
     expect(state.submitting).toBe(false);
     expect(state.errors).toEqual({ test2: 'Error' });
     expect(state.onSubmit).not.toBeUndefined();
+  });
+
+  it('should not treat empty-strings as non-errors', () => {
+    const state = renderHook(() => hook({ ...initialValues, test1: 'empty-error' })).result.current;
+
+    expect(state.errors).toEqual({ test1: '', test2: 'Error' });
   });
 
   it('should return state object if used with function-validator', () => {

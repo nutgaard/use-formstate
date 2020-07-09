@@ -112,7 +112,9 @@ export function useFormstateInternal<
 
   const errorsArray: Array<[Keyof<S>, string]> = useMemo(
     () =>
-      fieldsArray.filter(([key, field]) => field.error).map(([key, field]) => [key, field.error!]),
+      fieldsArray
+        .filter(([key, field]) => field.error !== undefined)
+        .map(([key, field]) => [key, field.error!]),
     [fieldsArray]
   );
 
