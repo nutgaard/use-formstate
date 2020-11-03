@@ -1,4 +1,4 @@
-import { createInitialState, fromEntries, mapToValidationFunction } from './utils';
+import { createInitialState, fromEntries, mapToValidationFunction } from './internal-utils';
 import {
   Errors,
   FieldState,
@@ -54,10 +54,8 @@ export function useFormstateInternal<
   const [state, updateState] = useImmer(createInitialState(keys, validation, initialValues, props));
   const [submittoken, setSubmittoken] = useState<string | undefined>(undefined);
 
-  const onChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const name = event.target.name;
-      const value = event.target.value;
+  const setValue = useCallback(
+    (name: string, value: string) => {
       updateState(draft => {
         const initialValue = draft.fields[name].initialValue;
 
@@ -79,6 +77,15 @@ export function useFormstateInternal<
     [updateState, validation, props]
   );
 
+  const onChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const name = event.target.name;
+      const value = event.target.value;
+      setValue(name, value);
+    },
+    [setValue]
+  );
+
   const onBlur = useCallback(
     (event: React.FocusEvent<HTMLInputElement>) => {
       const name = event.target.name;
@@ -92,11 +99,13 @@ export function useFormstateInternal<
   const fieldsArray: Array<[Keyof<S>, FieldState]> = useMemo(
     () =>
       Object.entries(state.fields).map(([key, field]) => {
+        const setFieldValue = (value: string) => setValue(key, value);
         const fieldstate = {
           pristine: field.pristine,
           touched: field.touched,
           initialValue: field.initialValue,
           error: field.error,
+          setValue: setFieldValue,
           input: {
             id: key,
             name: key,
@@ -107,7 +116,7 @@ export function useFormstateInternal<
         };
         return [key, fieldstate];
       }),
-    [state.fields, onChange, onBlur]
+    [state.fields, onChange, onBlur, setValue]
   );
 
   const errorsArray: Array<[Keyof<S>, string]> = useMemo(
@@ -179,9 +188,20 @@ export function useFormstateInternal<
       errors,
       fields,
       onSubmit,
-      reinitialize
+      reinitialize,
+      setValue
     }),
-    [submitting, errorsArray, pristine, submittoken, errors, fields, onSubmit, reinitialize]
+    [
+      submitting,
+      errorsArray,
+      pristine,
+      submittoken,
+      errors,
+      fields,
+      onSubmit,
+      reinitialize,
+      setValue
+    ]
   );
 }
 

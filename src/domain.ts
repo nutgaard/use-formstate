@@ -19,18 +19,21 @@ export type InitialValues<S> = Mapped<S, string>;
 export type Errors<S> = Mapped<S, string>;
 export type SubmitHandler<S> = (values: Values<S>) => Promise<any>;
 
+export type FieldInputProps = {
+  id: string;
+  name: string;
+  value: string;
+  onChange: React.ChangeEventHandler;
+  onBlur: React.FocusEventHandler;
+};
+
 export type FieldState = {
   pristine: boolean;
   touched: boolean;
   initialValue: string;
   error?: string;
-  input: {
-    id: string;
-    name: string;
-    value: string;
-    onChange: React.ChangeEventHandler;
-    onBlur: React.FocusEventHandler;
-  };
+  setValue(value: string): void;
+  input: FieldInputProps;
 };
 
 export type Formstate<T> = {
@@ -40,6 +43,7 @@ export type Formstate<T> = {
   submittoken?: string;
   errors: Errors<T>;
   fields: Mapped<T, FieldState>;
+  setValue(name: keyof T, value: string): void;
   onSubmit(fn: SubmitHandler<T>): React.FormEventHandler;
   reinitialize(initialValues: InitialValues<T>): void;
 };
