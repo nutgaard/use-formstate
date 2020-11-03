@@ -17,6 +17,7 @@ import { InternalState } from './internal-domain';
 import { Draft } from 'immer';
 
 export * from './domain';
+export * from './utils';
 
 function useIsMounted() {
   const isMounted = useRef(false);

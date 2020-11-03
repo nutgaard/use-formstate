@@ -1,7 +1,7 @@
 import React from 'react';
 import { FieldState } from './domain';
 
-export function toCheckboxProps(field: FieldState): React.InputHTMLAttributes<HTMLInputElement> {
+export function checkboxAdapter(field: FieldState): React.InputHTMLAttributes<HTMLInputElement> {
   return {
     ...field.input,
     checked: 'true' === field.input.value,

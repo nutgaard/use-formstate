@@ -1,5 +1,5 @@
 import { FieldState } from '../src/domain';
-import { toCheckboxProps } from '../src/utils';
+import { checkboxAdapter } from '../src/utils';
 import { ChangeEvent } from 'react';
 
 describe('utils', () => {
@@ -22,7 +22,7 @@ describe('utils', () => {
       }
     };
 
-    const result = toCheckboxProps(fieldstate);
+    const result = checkboxAdapter(fieldstate);
     expect(result.id).toBe('id');
     expect(result.name).toBe('name');
     expect(result.value).toBe('value');
