@@ -149,7 +149,7 @@ describe('use-formstate', () => {
     });
   });
 
-  it('onSubmit should only call submitter-fn if form is valid', () => {
+  it('onSubmit should only call submitter-fn if form is valid', done => {
     const submitter = jest.fn(() => Promise.resolve());
     const hookResult = renderHook(() => hook(initialValues));
     const state = hookResult.result.current;
@@ -163,10 +163,38 @@ describe('use-formstate', () => {
 
     expect(hookResult.result.current.errors).toEqual({});
     expect(hookResult.result.current.submitting).toBe(true);
+    expect(hookResult.result.current.submittingFailed).toBe(false);
+    expect(hookResult.result.current.submittingSuccess).toBe(false);
     expect(hookResult.result.current.valid).toBe(true);
     expect(hookResult.result.current.submittoken).toBeUndefined();
     expect(submitter).toBeCalledTimes(1);
     expect(submitter).toHaveBeenCalledWith({ test1: '', test2: 'ok', test3: 'value' });
+
+    setTimeout(() => {
+      expect(hookResult.result.current.submitting).toBe(false);
+      expect(hookResult.result.current.submittingFailed).toBe(false);
+      expect(hookResult.result.current.submittingSuccess).toBe(true);
+      done();
+    }, 0);
+  });
+
+  it('onSubmit should set submittingFailed if returned promise is rejected', done => {
+    const submitter = jest.fn(() => Promise.reject());
+    const hookResult = renderHook(() => hook(initialValues));
+    const state = hookResult.result.current;
+
+    act(() => state.fields.test2.input.onChange(changeEvent('test2', 'ok')));
+    act(() => hookResult.result.current.onSubmit(submitter)(submitEvent()));
+
+    expect(hookResult.result.current.submitting).toBe(true);
+    expect(hookResult.result.current.submittingFailed).toBe(false);
+    expect(hookResult.result.current.submittingSuccess).toBe(false);
+    setTimeout(() => {
+      expect(hookResult.result.current.submitting).toBe(false);
+      expect(hookResult.result.current.submittingFailed).toBe(true);
+      expect(hookResult.result.current.submittingSuccess).toBe(false);
+      done();
+    }, 0);
   });
 
   it('onSubmit should honor the preventConcurrent-option and prevent concurrent submits', done => {
@@ -193,23 +221,44 @@ describe('use-formstate', () => {
     }, 300);
   });
 
-  it('onSubmit should not update state if component is unmounted', () => {
-    const submitter = jest.fn(() => Promise.resolve());
-    const hookResult = renderHook(() => hook(initialValues));
-    const state = hookResult.result.current;
+  describe('onSubmit should not update state if component is unmounted', () => {
+    it('should not update when submit is successful', () => {
+      const submitter = jest.fn(() => Promise.resolve());
+      const hookResult = renderHook(() => hook(initialValues));
+      const state = hookResult.result.current;
 
-    act(() => state.fields.test2.input.onChange(changeEvent('test2', 'ok')));
+      act(() => state.fields.test2.input.onChange(changeEvent('test2', 'ok')));
 
-    expect(hookResult.result.current.fields.test2.input.value).toBe('ok');
-    expect(hookResult.result.current.fields.test2.error).toBeUndefined();
+      expect(hookResult.result.current.fields.test2.input.value).toBe('ok');
+      expect(hookResult.result.current.fields.test2.error).toBeUndefined();
 
-    act(() => hookResult.result.current.onSubmit(submitter)(submitEvent()));
-    hookResult.unmount();
+      act(() => hookResult.result.current.onSubmit(submitter)(submitEvent()));
+      hookResult.unmount();
 
-    expect(hookResult.result.current.errors).toEqual({});
-    expect(hookResult.result.current.submitting).toBe(true);
-    expect(hookResult.result.current.valid).toBe(true);
-    expect(submitter).toBeCalledTimes(1);
+      expect(hookResult.result.current.errors).toEqual({});
+      expect(hookResult.result.current.submitting).toBe(true);
+      expect(hookResult.result.current.valid).toBe(true);
+      expect(submitter).toBeCalledTimes(1);
+    });
+
+    it('should not update when submitting fails', () => {
+      const submitter = jest.fn(() => Promise.reject());
+      const hookResult = renderHook(() => hook(initialValues));
+      const state = hookResult.result.current;
+
+      act(() => state.fields.test2.input.onChange(changeEvent('test2', 'ok')));
+
+      expect(hookResult.result.current.fields.test2.input.value).toBe('ok');
+      expect(hookResult.result.current.fields.test2.error).toBeUndefined();
+
+      act(() => hookResult.result.current.onSubmit(submitter)(submitEvent()));
+      hookResult.unmount();
+
+      expect(hookResult.result.current.errors).toEqual({});
+      expect(hookResult.result.current.submitting).toBe(true);
+      expect(hookResult.result.current.valid).toBe(true);
+      expect(submitter).toBeCalledTimes(1);
+    });
   });
 
   it('should be able to reinitialize', done => {

@@ -53,6 +53,8 @@ export function useFormstateInternal<
 ): Formstate<S> {
   const isMounted = useIsMounted();
   const [submitting, setSubmitting] = useState(false);
+  const [submittingFailed, setSubmittingFailed] = useState(false);
+  const [submittingSuccess, setSubmittingSuccess] = useState(false);
   const [state, updateState] = useImmer(createInitialState(keys, validation, initialValues, props));
   const [submittoken, setSubmittoken] = useState<string | undefined>(undefined);
 
@@ -145,12 +147,21 @@ export function useFormstateInternal<
 
       if (errorsArray.length === 0) {
         setSubmitting(true);
-        const submitDoneHandler = () => {
+        const submitOkHandler = () => {
           if (isMounted.current) {
             setSubmitting(false);
+            setSubmittingFailed(false);
+            setSubmittingSuccess(true);
           }
         };
-        fn(values).then(submitDoneHandler, submitDoneHandler);
+        const submitErrorHandler = () => {
+          if (isMounted.current) {
+            setSubmitting(false);
+            setSubmittingFailed(true);
+            setSubmittingSuccess(false);
+          }
+        };
+        fn(values).then(submitOkHandler, submitErrorHandler);
       } else {
         setSubmittoken(uid());
       }
@@ -187,6 +198,8 @@ export function useFormstateInternal<
   return useMemo(
     () => ({
       submitting,
+      submittingFailed,
+      submittingSuccess,
       valid: errorsArray.length === 0,
       pristine,
       submittoken,
@@ -198,6 +211,8 @@ export function useFormstateInternal<
     }),
     [
       submitting,
+      submittingFailed,
+      submittingSuccess,
       errorsArray,
       pristine,
       submittoken,

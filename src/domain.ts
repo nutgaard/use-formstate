@@ -39,6 +39,8 @@ export type FieldState = {
 
 export type Formstate<T> = {
   submitting: boolean;
+  submittingFailed: boolean;
+  submittingSuccess: boolean;
   pristine: boolean;
   valid: boolean;
   submittoken?: string;
