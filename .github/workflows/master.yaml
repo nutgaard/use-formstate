@@ -32,7 +32,7 @@ jobs:
         run: npm run test:prod
       - name: Build
         run: npm run build
-      - name: Report coverage
+      - name: Report coverage and publish
         if: matrix.node == '14'
         run: |
           npm run report-coverage
