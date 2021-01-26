@@ -132,7 +132,7 @@ describe('use-formstate', () => {
     });
   });
 
-  it('onSubmit should only call submitter-fn if form is valid', done => {
+  it('onSubmit should prevent calls submitter-fn if form is invalid', done => {
     const hookResult = renderHook(() => hook(initialValues));
     const state = hookResult.result.current;
 
@@ -167,6 +167,30 @@ describe('use-formstate', () => {
     expect(hookResult.result.current.submittoken).toBeUndefined();
     expect(submitter).toBeCalledTimes(1);
     expect(submitter).toHaveBeenCalledWith({ test1: '', test2: 'ok', test3: 'value' });
+  });
+
+  it('onSubmit should honor the preventConcurrent-option and prevent concurrent submits', done => {
+    const submitter = jest.fn(() => new Promise(resolve => setTimeout(resolve, 200)));
+    const hookResult = renderHook(() => hook(initialValues));
+    const state = hookResult.result.current;
+
+    act(() => state.fields.test2.input.onChange(changeEvent('test2', 'ok')));
+    act(() =>
+      hookResult.result.current.onSubmit(submitter, { preventConcurrent: true })(submitEvent())
+    );
+    act(() =>
+      hookResult.result.current.onSubmit(submitter, { preventConcurrent: true })(submitEvent())
+    );
+
+    setTimeout(() => {
+      // This is called after the first submition is done (200ms).
+      act(() =>
+        hookResult.result.current.onSubmit(submitter, { preventConcurrent: true })(submitEvent())
+      );
+      expect(submitter).toBeCalledTimes(2);
+      expect(submitter).toHaveBeenCalledWith({ test1: '', test2: 'ok', test3: 'value' });
+      done();
+    }, 300);
   });
 
   it('onSubmit should not update state if component is unmounted', () => {

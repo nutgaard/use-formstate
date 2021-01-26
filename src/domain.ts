@@ -18,6 +18,7 @@ export type Values<S> = Mapped<S, string>;
 export type InitialValues<S> = Mapped<S, string>;
 export type Errors<S> = Mapped<S, string>;
 export type SubmitHandler<S> = (values: Values<S>) => Promise<any>;
+export type SubmitHandlerOptions = { preventConcurrent?: boolean };
 
 export type FieldInputProps = {
   id: string;
@@ -44,6 +45,6 @@ export type Formstate<T> = {
   errors: Errors<T>;
   fields: Mapped<T, FieldState>;
   setValue(name: keyof T, value: string): void;
-  onSubmit(fn: SubmitHandler<T>): React.FormEventHandler;
+  onSubmit(fn: SubmitHandler<T>, options?: SubmitHandlerOptions): React.FormEventHandler;
   reinitialize(initialValues: InitialValues<T>): void;
 };

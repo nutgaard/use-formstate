@@ -8,6 +8,7 @@ import {
   Keyof,
   Mapped,
   SubmitHandler,
+  SubmitHandlerOptions,
   Validation,
   Values
 } from './domain';
@@ -133,8 +134,11 @@ export function useFormstateInternal<
   const errors: Errors<S> = useMemo(() => fromEntries(errorsArray), [errorsArray]);
   const fields: Mapped<S, FieldState> = useMemo(() => fromEntries(fieldsArray), [fieldsArray]);
   const onSubmit = useCallback(
-    (fn: SubmitHandler<S>) => (event: React.FormEvent) => {
+    (fn: SubmitHandler<S>, options?: SubmitHandlerOptions) => (event: React.FormEvent) => {
       event.preventDefault();
+      if (options && options.preventConcurrent && submitting) {
+        return;
+      }
       updateState(draft => {
         Object.keys(draft.fields).forEach(field => (draft.fields[field].touched = true));
       });
