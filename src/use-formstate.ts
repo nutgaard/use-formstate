@@ -61,15 +61,19 @@ export function useFormstateInternal<
   const setValue = useCallback(
     (name: string, value: string) => {
       updateState(draft => {
+        // @ts-ignore
         const initialValue = draft.fields[name].initialValue;
 
+        // @ts-ignore
         draft.fields[name].pristine = initialValue === value;
+        // @ts-ignore
         draft.fields[name].value = value;
         const values = getValues(draft);
         const errors = validation(values, props);
         const formHasError = Object.keys(draft.fields).some(error => error);
 
         Object.keys(draft.fields).forEach(key => {
+          // @ts-ignore
           draft.fields[key].error = errors[key];
         });
 
@@ -94,6 +98,7 @@ export function useFormstateInternal<
     (event: React.FocusEvent<HTMLInputElement>) => {
       const name = event.target.name;
       updateState(draft => {
+        // @ts-ignore
         draft.fields[name].touched = true;
       });
     },
@@ -142,6 +147,7 @@ export function useFormstateInternal<
         return;
       }
       updateState(draft => {
+        // @ts-ignore
         Object.keys(draft.fields).forEach(field => (draft.fields[field].touched = true));
       });
 
