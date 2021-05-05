@@ -85,7 +85,7 @@
     ]
   },
   "peerDependencies": {
-    "react": "^16.8.0"
+    "react": "^16.8.0 || ^17.0.0"
   },
   "dependencies": {
     "immer": "^9.0.1",
@@ -111,8 +111,8 @@
     "lodash.camelcase": "^4.3.0",
     "prettier": "^1.14.3",
     "prompt": "^1.0.0",
-    "react": "^16.8.6",
-    "react-test-renderer": "^16.8.6",
+    "react": "^17.0.2",
+    "react-test-renderer": "^17.0.2",
     "replace-in-file": "^3.4.2",
     "rimraf": "^2.6.2",
     "rollup": "^0.67.0",
